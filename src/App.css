@@ -1,38 +1,67 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.navbar {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 20px;
+  padding: 12px 0;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+  border-bottom: 1px solid #ddd;
+  font-family: Arial, sans-serif;
 }
 
-.App-link {
-  color: #61dafb;
+.nav-link {
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nav-link:hover {
+  background-color: #4caf50; /* mismo verde */
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+
+.accept-btn,
+.decline-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  color: #fff;
+}
+
+/* Botón aceptar */
+.accept-btn {
+  background: linear-gradient(135deg, #4caf50, #66bb6a);
+  margin-right: 15px;
+}
+
+.accept-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Botón declinar */
+.decline-btn {
+  background: linear-gradient(135deg, #eb5e54, #ec7b79);
+}
+
+.decline-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Opcional: efecto de click */
+.accept-btn:active,
+.decline-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }

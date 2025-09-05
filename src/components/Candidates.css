@@ -1,0 +1,141 @@
+.candidates-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.candidates-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.candidate-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.candidate-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.candidate-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: #222;
+}
+
+.candidate-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.accept-btn {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #4caf50;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.accept-btn:hover {
+  background: #45a049;
+}
+
+/* Base card */
+.candidate-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+/* Hover */
+.candidate-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Estado aceptado (verde suave) */
+.candidate-card.aceptado {
+  background-color: #e6f7e6; /* verde clarito */
+  border-color: #b3e6b3;
+}
+
+/* Estado declinado (rojo suave) */
+.candidate-card.declinado {
+  background-color: #fdeaea; /* rojo clarito */
+  border-color: #f5bcbc;
+}
+
+
+/* Página de confirmación centrada */
+.confirmation-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  text-align: center;
+  background: #f5f7fa; /* Fondo suave */
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* Mensaje de estado */
+.confirmation-page h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+
+/* Botón moderno para volver */
+.back-btn {
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #4a90e2, #50e3c2);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}

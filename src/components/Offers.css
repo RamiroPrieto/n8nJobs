@@ -1,0 +1,128 @@
+.offers-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.offers-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.offer-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.offer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.offer-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: #222;
+}
+
+.offer-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.offer-details {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.offer-details h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 22px;
+  color: #222;
+}
+
+.offer-details p {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.offer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.offer-form input[type="text"],
+.offer-form input[type="email"],
+.offer-form input[type="file"] {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.accept-btn {
+  padding: 10px 16px;
+  background: #4caf50;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 10px;
+}
+
+.accept-btn:hover {
+  background: #45a049;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+  background: #9ca3af;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.cancel-btn:hover {
+  background: #7b7f84;
+}
+
+.center-text {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.error-text {
+  color: red;
+}
