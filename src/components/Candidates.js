@@ -8,7 +8,8 @@ export const Candidates = () => {
   const [actionResult, setActionResult] = useState(null); // 👈 nuevo estado
 
   useEffect(() => {
-    fetch("http://localhost:5678/webhook-test/candidates")
+    // fetch("http://localhost:5678/webhook-test/candidates")
+    fetch("http://localhost:5678/webhook/candidates")
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener los candidatos");
         return res.json();
@@ -26,7 +27,8 @@ export const Candidates = () => {
 
   const handleAction = async (candidate, estado) => {
     try {
-      const res = await fetch("http://localhost:5678/webhook-test/enviar", {
+      // const res = await fetch("http://localhost:5678/webhook-test/enviar", {
+      const res = await fetch("http://localhost:5678/webhook/enviar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...candidate, estado }),
@@ -75,20 +77,23 @@ export const Candidates = () => {
               <p><strong>Email:</strong> {c.email}</p>
               <p><strong>Descripción:</strong> {c.descripcion || "Sin descripción"}</p>
               <p><strong>Experiencia:</strong> {c.resumen_experiencia_laboral || "No especificada"}</p>
+              <p><strong>Salario pretendido:</strong> {c.requestedsalary} USD</p>
               <p><strong>Nota:</strong> {c.nota}</p>
               <p><strong>Explicación nota:</strong> {c.expnota || "No especificada"}</p>
-              <button 
-                className="accept-btn" 
-                onClick={() => handleAction(c, "aceptado")}
-              >
-                ✅ Aceptar
-              </button>
-              <button 
-                className="decline-btn" 
-                onClick={() => handleAction(c, "declinado")}
-              >
-                ❌ Declinar
-              </button>
+              <div className="buttons-container">
+                <button 
+                  className="accept-btn" 
+                  onClick={() => handleAction(c, "aceptado")}
+                >
+                  ✅ Aceptar
+                </button>
+                <button 
+                  className="decline-btn" 
+                  onClick={() => handleAction(c, "declinado")}
+                >
+                  ❌ Declinar
+                </button>
+              </div>
             </li>
           ))
         }

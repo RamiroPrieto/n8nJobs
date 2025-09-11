@@ -7,7 +7,8 @@ export const Respondidos = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5678/webhook-test/candidates")
+    // fetch("http://localhost:5678/webhook-test/candidates")
+    fetch("http://localhost:5678/webhook/candidates")
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener los candidatos");
         return res.json();
@@ -42,6 +43,7 @@ export const Respondidos = () => {
               <p><strong>Descripción:</strong> {c.descripcion || "Sin descripción"}</p>
               <p><strong>Experiencia:</strong> {c.resumen_experiencia_laboral || "No especificada"}</p>
               <p><strong>Estado:</strong> {c.estado}</p>
+              <p><strong>Salario pretendido:</strong> {c.requestedsalary} USD</p>
               <p><strong>Nota:</strong> {c.nota}</p>
               <p><strong>Explicación nota:</strong> {c.expnota || "No especificada"}</p>
             </li>

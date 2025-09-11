@@ -7,15 +7,19 @@ export const Offers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [submitted, setSubmitted] = useState(false); // ✅ nuevo estado
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    salary: "",
     file: null
   });
 
   useEffect(() => {
-    fetch("http://localhost:5678/webhook-test/jobs")
+    // fetch("http://localhost:5678/webhook-test/jobs")
+    fetch("http://localhost:5678/webhook/jobs")
       .then(res => res.json())
       .then(data => {
         const jobsList = data[0]?.jobs || [];
@@ -48,17 +52,18 @@ export const Offers = () => {
     payload.append("id", selectedJob.id);
     payload.append("title", selectedJob.title);
     payload.append("description", selectedJob.description);
-    payload.append("maxSalary", selectedJob.salary)
+    payload.append("maxSalary", selectedJob.salary);
     payload.append("firstName", formData.firstName);
     payload.append("lastName", formData.lastName);
-    payload.append("salary", formData.salary)
+    payload.append("salary", formData.salary);
     payload.append("email", formData.email);
 
     if (formData.file) {
       payload.append("file", formData.file);
     }
 
-    fetch("http://localhost:5678/webhook-test/send", {
+    // fetch("http://localhost:5678/webhook-test/send", {
+    fetch("http://localhost:5678/webhook/send", {
       method: "POST",
       body: payload
     })
@@ -67,8 +72,8 @@ export const Offers = () => {
         return res.json();
       })
       .then(() => {
-        alert("Oferta enviada correctamente!");
-        setFormData({ firstName: "", lastName: "", email: "", file: null });
+        setSubmitted(true); // ✅ mostramos pantalla de éxito
+        setFormData({ firstName: "", lastName: "", email: "", salary: "", file: null });
       })
       .catch(err => {
         console.error(err);
@@ -78,6 +83,21 @@ export const Offers = () => {
 
   if (loading) return <p className="center-text">Cargando ofertas...</p>;
   if (error) return <p className="center-text error-text">Error: {error}</p>;
+
+  // ✅ Pantalla de éxito
+  if (submitted) {
+    return (
+      <div className="offer-success">
+        <h2>✅ Se ha enviado correctamente</h2>
+        <button className="accept-btn" onClick={() => {
+          setSubmitted(false);
+          setSelectedJob(null);
+        }}>
+          Volver a las ofertas
+        </button>
+      </div>
+    );
+  }
 
   if (selectedJob) {
     return (
@@ -124,8 +144,12 @@ export const Offers = () => {
           />
         </div>
 
-        <button className="accept-btn" onClick={handleSubmit}>Enviar esta oferta</button>
-        <button className="cancel-btn" onClick={() => setSelectedJob(null)}>Volver a la lista</button>
+        <button className="accept-btn" onClick={handleSubmit}>
+          Enviar esta oferta
+        </button>
+        <button className="cancel-btn" onClick={() => setSelectedJob(null)}>
+          Volver a la lista
+        </button>
       </div>
     );
   }
@@ -139,7 +163,9 @@ export const Offers = () => {
             <h3>{job.title}</h3>
             <p>{job.short}</p>
             <p>{job.description}</p>
-            <button className="accept-btn" onClick={() => setSelectedJob(job)}>Ver más</button>
+            <button className="accept-btn" onClick={() => setSelectedJob(job)}>
+              Ver más
+            </button>
           </li>
         ))}
       </ul>

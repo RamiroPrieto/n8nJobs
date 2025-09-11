@@ -65,3 +65,19 @@
   transform: translateY(0);
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
+
+.buttons-container{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.accept-btn{
+  width: 30%;
+  height: 50px;
+}
+
+.decline-btn{
+  width: 30%;
+  height: 50px;
+}
