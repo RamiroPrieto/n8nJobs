@@ -18,8 +18,8 @@ export const Offers = () => {
   });
 
   useEffect(() => {
-    // fetch("http://localhost:5678/webhook-test/jobs")
-    fetch("http://localhost:5678/webhook/jobs")
+    fetch("http://concentrix.net.ar:5678/webhook/jobs")
+    // fetch("http://concentrix.net.ar:5678/webhook/jobs")
       .then(res => res.json())
       .then(data => {
         const jobsList = data[0]?.jobs || [];
@@ -62,8 +62,8 @@ export const Offers = () => {
       payload.append("file", formData.file);
     }
 
-    // fetch("http://localhost:5678/webhook-test/send", {
-    fetch("http://localhost:5678/webhook/send", {
+    // fetch("http://concentrix.net.ar:5678/webhook/send", {
+    fetch("http://concentrix.net.ar:5678/webhook/send", {
       method: "POST",
       body: payload
     })
