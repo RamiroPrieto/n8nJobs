@@ -7,8 +7,8 @@ export const Respondidos = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // fetch("/webhook/candidates")
-    fetch("/webhook/candidates")
+    // fetch("http://concentrix.net.ar:5678/webhook/candidates")
+    fetch("http://concentrix.net.ar:5678/webhook/candidates")
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener los candidatos");
         return res.json();
@@ -33,6 +33,8 @@ export const Respondidos = () => {
       <ul className="candidates-list">
         {candidates
           .filter(c => c.estado === "aceptado" || c.estado === "declinado")
+          .slice() // hacemos una copia para no mutar el estado
+          .reverse() // invertimos el orden
           .map(c => (
             <li
               key={c.row_number}
@@ -46,6 +48,12 @@ export const Respondidos = () => {
               <p><strong>Salario pretendido:</strong> {c.requestedsalary} USD</p>
               <p><strong>Nota:</strong> {c.nota}</p>
               <p><strong>Explicación nota:</strong> {c.expnota || "No especificada"}</p>
+              <p>
+                <strong>Fecha aceptado/declinado:</strong>{" "}
+                {c.fecha_aceptado 
+                  ? new Date(c.fecha_aceptado).toLocaleString() 
+                  : "No registrada"}
+              </p>
             </li>
           ))}
       </ul>

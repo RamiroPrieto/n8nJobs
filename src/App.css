@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   gap: 20px;
-  padding: 12px 0;
+  padding: 12px 12px;
   background: #fff;
   box-shadow: 0 4px 6px rgba(0,0,0,0.08);
   border-bottom: 1px solid #ddd;
@@ -32,6 +32,7 @@
   font-weight: 600;
   border: none;
   border-radius: 12px;
+  width: 100%;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -72,12 +73,166 @@
   align-items: center;
 }
 
+.logout-button {
+  background: #c62828;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logged-email {
+  font-weight: bold;
+  color: #333;
+}
+
+
 .accept-btn{
-  width: 30%;
+  width: 100%;
   height: 50px;
 }
 
 .decline-btn{
   width: 30%;
   height: 50px;
+}
+
+/* 💠 Centrado general del login */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 60px);
+  padding: 20px;
+  background: #f5f7fa;
+}
+
+/* 💠 Caja principal */
+.login-container {
+  width: 100%;
+  max-width: 380px;
+  background: white;
+  padding: 30px 35px;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 25px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* 💠 Inputs modernos */
+.login-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #d0d0d0;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.login-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.3);
+  outline: none;
+}
+
+/* 💠 Botón moderno */
+.login-button {
+  width: 100%;
+  padding: 12px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.login-button:hover {
+  background: #3a7bd5;
+}
+
+.login-button:active {
+  transform: scale(0.97);
+}
+
+/* 💠 Animación suave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-error {
+  margin-top: 15px;
+  color: #d62828;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+
+.logout-btn {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
+  background-color: #d62828;
+  transform: translateY(-1px);
+}
+
+.logout-btn:active {
+  background-color: #b71d1d;
+  transform: translateY(0);
+}
+
+.user-indicator {
+  font-size: 14px;
+  color: #2a2a2a;
+  font-weight: 500;
+}
+
+.login-btn {
+  background-color: #457b9d;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.login-btn:hover {
+  background-color: #1d3557;
+  transform: translateY(-1px);
+}
+
+.login-btn:active {
+  background-color: #14213d;
+  transform: translateY(0);
 }

@@ -5,11 +5,14 @@ export const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [actionResult, setActionResult] = useState(null); // 👈 nuevo estado
+  const [actionResult, setActionResult] = useState(null);
 
-  useEffect(() => {
-    // fetch("/webhook/candidates")
-    fetch("/webhook/candidates")
+  // Función para cargar candidatos
+  const loadCandidates = () => {
+    setLoading(true);
+    setError(null);
+
+    fetch("http://concentrix.net.ar:5678/webhook/candidates")
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener los candidatos");
         return res.json();
@@ -23,19 +26,27 @@ export const Candidates = () => {
         setError(err.message);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadCandidates();
   }, []);
+
+  const handleClick = () => {
+    // Volver a cargar los candidatos
+    loadCandidates();
+    setActionResult(null); // Volvemos a la lista
+  };
 
   const handleAction = async (candidate, estado) => {
     try {
-      // const res = await fetch("/webhook/enviar", {
-      const res = await fetch("/webhook/enviar", {
+      const res = await fetch("http://concentrix.net.ar:5678/webhook/enviar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...candidate, estado }),
       });
       if (!res.ok) throw new Error("Error al enviar acción");
 
-      // En lugar de alert, mostramos un mensaje en la página
       setActionResult({
         nombre: candidate.nombre,
         estado,
@@ -46,7 +57,6 @@ export const Candidates = () => {
     }
   };
 
-  // Mensaje de confirmación
   if (actionResult) {
     return (
       <div className="confirmation-page">
@@ -55,7 +65,7 @@ export const Candidates = () => {
             ? `✅ ${actionResult.nombre} ha sido aceptado`
             : `❌ ${actionResult.nombre} ha sido declinado`}
         </h2>
-        <button onClick={() => window.location.reload()}  className="back-btn">
+        <button onClick={handleClick} className="back-btn">
           ← Volver a candidatos
         </button>
       </div>
@@ -95,8 +105,7 @@ export const Candidates = () => {
                 </button>
               </div>
             </li>
-          ))
-        }
+          ))}
       </ul>
     </div>
   );

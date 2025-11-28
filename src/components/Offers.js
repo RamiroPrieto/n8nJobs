@@ -6,8 +6,8 @@ export const Offers = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const [submitted, setSubmitted] = useState(false); // ✅ nuevo estado
+  const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false); // 👈 nuevo estado
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -18,8 +18,7 @@ export const Offers = () => {
   });
 
   useEffect(() => {
-    fetch("/webhook/jobs")
-    // fetch("/webhook/jobs")
+    fetch("http://concentrix.net.ar:5678/webhook/jobs")
       .then(res => res.json())
       .then(data => {
         const jobsList = data[0]?.jobs || [];
@@ -36,7 +35,12 @@ export const Offers = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "file") {
-      setFormData(prev => ({ ...prev, file: files[0] }));
+      const file = files[0];
+      if (file && file.type !== "application/pdf") {
+        alert("Solo se permite subir archivos PDF.");
+        return;
+      }
+      setFormData(prev => ({ ...prev, file }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -47,6 +51,13 @@ export const Offers = () => {
       alert("Por favor completá todos los campos del formulario.");
       return;
     }
+
+    if (formData.file && formData.file.type !== "application/pdf") {
+      alert("El archivo debe ser un PDF.");
+      return;
+    }
+
+    setIsSending(true); // 👈 empieza el envío
 
     const payload = new FormData();
     payload.append("id", selectedJob.id);
@@ -62,29 +73,43 @@ export const Offers = () => {
       payload.append("file", formData.file);
     }
 
-    // fetch("/webhook/send", {
-    fetch("/webhook/send", {
+    fetch("http://concentrix.net.ar:5678/webhook/send", {
       method: "POST",
-      body: payload
+      body: payload,
     })
-      .then(res => {
+      .then(async (res) => {
         if (!res.ok) throw new Error("Error al enviar datos");
-        return res.json();
+
+        const text = await res.text();
+        if (!text) return null;
+        try {
+          return JSON.parse(text);
+        } catch {
+          return null;
+        }
       })
       .then(() => {
-        setSubmitted(true); // ✅ mostramos pantalla de éxito
-        setFormData({ firstName: "", lastName: "", email: "", salary: "", file: null });
+        setSubmitted(true);
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          salary: "",
+          file: null,
+        });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         alert("Error al enviar la oferta");
+      })
+      .finally(() => {
+        setIsSending(false); // 👈 termina el envío
       });
   };
 
   if (loading) return <p className="center-text">Cargando ofertas...</p>;
   if (error) return <p className="center-text error-text">Error: {error}</p>;
 
-  // ✅ Pantalla de éxito
   if (submitted) {
     return (
       <div className="offer-success">
@@ -144,10 +169,19 @@ export const Offers = () => {
           />
         </div>
 
-        <button className="accept-btn" onClick={handleSubmit}>
-          Enviar esta oferta
-        </button>
-        <button className="cancel-btn" onClick={() => setSelectedJob(null)}>
+        {isSending ? ( // 👈 mostrar algo mientras se envía
+          <p className="center-text sending-text">📤 Enviando oferta, por favor espera...</p>
+        ) : (
+          <button className="accept-btn" onClick={handleSubmit}>
+            Enviar esta oferta
+          </button>
+        )}
+
+        <button
+          className="cancel-btn"
+          onClick={() => setSelectedJob(null)}
+          disabled={isSending} // 👈 bloquea mientras se envía
+        >
           Volver a la lista
         </button>
       </div>
