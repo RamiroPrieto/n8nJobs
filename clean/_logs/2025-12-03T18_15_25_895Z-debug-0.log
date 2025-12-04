@@ -7,6 +7,7 @@
 6 silly config load:file:C:\Users\Carol Navia\AppData\Roaming\npm\etc\npmrc
 7 verbose title npm start
 8 verbose argv "start"
-9 verbose logfile logs-max:10 dir:C:\n8nJobs\clean\_logs\2025-12-03T11_13_33_044Z-
-10 verbose logfile C:\n8nJobs\clean\_logs\2025-12-03T11_13_33_044Z-debug-0.log
-11 silly logfile done cleaning log files
+9 verbose logfile logs-max:10 dir:C:\n8nJobs\clean\_logs\2025-12-03T18_15_25_895Z-
+10 verbose logfile C:\n8nJobs\clean\_logs\2025-12-03T18_15_25_895Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files

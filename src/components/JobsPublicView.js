@@ -2,9 +2,29 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Briefcase, DollarSign } from 'lucide-react';
 import { jobOffers } from '../data/mockData';
+import JobApplicationForm from './JobApplicationForm';
 
 const JobsPublicView = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  const handleApply = (job) => {
+    setSelectedJob(job);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedJob(null);
+  };
+
+  const handleSubmitApplication = async (formData, job) => {
+    console.log('Aplicación enviada:', {
+      job: job.id,
+      applicant: formData
+    });
+    
+    // Aquí harías la llamada a tu API
+    return Promise.resolve();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -15,7 +35,7 @@ const JobsPublicView = () => {
             <h1 className="text-2xl font-bold" style={{ color: '#041E32' }}>
               Concentrix Jobs
             </h1>
-           {/*  <button 
+          {/*   <button 
               className="px-4 py-2 rounded-lg hover:opacity-90 transition-all font-medium"
               style={{ 
                 border: '1px solid #007380', 
@@ -112,6 +132,7 @@ const JobsPublicView = () => {
               </div>
               <div className="px-6 pb-6">
                 <button 
+                  onClick={() => handleApply(job)}
                   className="w-full text-white font-medium py-3 rounded-lg transition-all hover:opacity-90"
                   style={{ backgroundColor: '#007380' }}
                 >
@@ -122,6 +143,15 @@ const JobsPublicView = () => {
           ))}
         </div>
       </div>
+
+      {/* Modal de Aplicación */}
+      {selectedJob && (
+        <JobApplicationForm
+          job={selectedJob}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmitApplication}
+        />
+      )}
     </div>
   );
 };
