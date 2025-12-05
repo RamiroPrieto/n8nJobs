@@ -18,7 +18,7 @@ export const Offers = () => {
   });
 
   useEffect(() => {
-    fetch("http://concentrix.net.ar:5678/webhook/jobs")
+    fetch("https://concentrix.net.ar:8443/webhook/jobs")
       .then(res => res.json())
       .then(data => {
         const jobsList = data[0]?.jobs || [];
@@ -73,7 +73,7 @@ export const Offers = () => {
       payload.append("file", formData.file);
     }
 
-    fetch("http://concentrix.net.ar:5678/webhook/send", {
+    fetch("https://concentrix.net.ar:8443/webhook/send", {
       method: "POST",
       body: payload,
     })

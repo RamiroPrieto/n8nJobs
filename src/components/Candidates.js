@@ -12,7 +12,7 @@ export const Candidates = () => {
     setLoading(true);
     setError(null);
 
-    fetch("http://concentrix.net.ar:5678/webhook/candidates")
+    fetch("https://concentrix.net.ar:8443/webhook/candidates")
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener los candidatos");
         return res.json();
@@ -40,7 +40,7 @@ export const Candidates = () => {
 
   const handleAction = async (candidate, estado) => {
     try {
-      const res = await fetch("http://concentrix.net.ar:5678/webhook/enviar", {
+      const res = await fetch("http://concentrix.net.ar:8443/webhook/enviar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...candidate, estado }),

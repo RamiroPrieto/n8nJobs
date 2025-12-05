@@ -19,7 +19,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://concentrix.net.ar:5678",
+  "proxy": "https://concentrix.net.ar:8443/",
   "eslintConfig": {
     "extends": [
       "react-app",
