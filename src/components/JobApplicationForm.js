@@ -19,8 +19,8 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
     const { name, value, files } = e.target;
     
     if (name === 'file') {
-      const file = files[0];
-      setFormData(prev => ({ ...prev, file }));
+      const file = files?.[0] || null;
+      setFormData(prev => ({ ...prev, file: file }));
       setFileName(file ? file.name : '');
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -31,17 +31,17 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
     e.preventDefault();
 
     try {
-      // Aquí iría la llamada a tu API
-      if(formData){
-        console.log('formData', formData)
-        mutate(formData)
-      }
-      //Simulación de envío
-      // setTimeout(() => {
-      //   //setIsSending(false);
-      //   alert('✅ Aplicación enviada exitosamente!');
-      //   onClose();
-      // }, 2000);
+      if(!formData) return;
+      
+      const fd = new FormData();
+
+      Object.entries(formData).forEach(([key, value])=> {
+        if(value !== null && value !== undefined){
+          fd.append(key, value)
+        }
+      })
+        mutate(fd)
+      
     } catch (error) {
       console.error('Error al enviar:', error);
     }
@@ -262,15 +262,15 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
             </button>
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isSuccess}
               className="flex-1 px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: '#007380' }}
             >
               {isPending ? 'Enviando...' : 'Enviar Aplicación'}
             </button>
           </div>
-          {isSuccess && <p>Postulacion enviada!</p>}
-          {isError && <p>Error: {String(error?.message || error)}</p>}
+          {isSuccess && <div><br/><p>Postulacion enviada exitosamente!</p></div>}
+          {isError && <div><br/><p>Error: {String(error?.message || error)}</p></div>}
         </form>
       </div>
     </div>

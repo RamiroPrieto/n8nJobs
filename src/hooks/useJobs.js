@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "../api/jons";
+import { fetchJobs } from "../api/jobs";
 
 export function useJobs(payload) {
     return useQuery({
