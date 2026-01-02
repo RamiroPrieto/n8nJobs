@@ -1,6 +1,7 @@
 // src/components/JobApplicationForm.jsx
 import React, { useState } from 'react';
 import { X, Upload, CheckCircle, Loader } from 'lucide-react';
+import { useSendApplication } from '../hooks/useSendApplication';
 
 const JobApplicationForm = ({ job, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -10,8 +11,9 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
     salary: '',
     file: null
   });
-  const [isSending, setIsSending] = useState(false);
+  //const [isSending, setIsSending] = useState(false);
   const [fileName, setFileName] = useState('');
+  const { mutate, isPending, isSuccess, isError, error, data} = useSendApplication();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -25,23 +27,23 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSending(true);
 
     try {
       // Aquí iría la llamada a tu API
-      await onSubmit(formData, job);
-      
-      // Simulación de envío
-      setTimeout(() => {
-        setIsSending(false);
-        alert('✅ Aplicación enviada exitosamente!');
-        onClose();
-      }, 2000);
+      if(formData){
+        console.log('formData', formData)
+        mutate(formData)
+      }
+      //Simulación de envío
+      // setTimeout(() => {
+      //   //setIsSending(false);
+      //   alert('✅ Aplicación enviada exitosamente!');
+      //   onClose();
+      // }, 2000);
     } catch (error) {
       console.error('Error al enviar:', error);
-      setIsSending(false);
     }
   };
 
@@ -62,11 +64,11 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold mb-2">{job.title}</h2>
-              <p className="text-sm opacity-90">{job.company} • {job.location}</p>
+              <p className="text-sm opacity-90">{job.company} {job.location ? ' • ' + job.location : '' }</p>
             </div>
             <button
               onClick={onClose}
-              disabled={isSending}
+              disabled={isPending}
               className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors"
             >
               <X size={24} />
@@ -80,7 +82,7 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
             {job.description}
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
-            {job.tags.map((tag, index) => (
+            {/* {job.tags.map((tag, index) => (
               <span
                 key={index}
                 className="px-3 py-1 rounded-full text-xs text-white font-medium"
@@ -88,7 +90,13 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
               >
                 {tag}
               </span>
-            ))}
+            ))} */}
+            <span
+                className="px-3 py-1 rounded-full text-xs text-white font-medium"
+                style={{ backgroundColor: '#007380' }}
+              >
+                {job.short}
+              </span>
           </div>
         </div>
 
@@ -111,7 +119,7 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  disabled={isSending}
+                  disabled={isPending}
                   placeholder="Juan"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   style={{ '--tw-ring-color': '#24E2CB' }}
@@ -128,7 +136,7 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  disabled={isSending}
+                  disabled={isPending}
                   placeholder="Pérez"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   style={{ '--tw-ring-color': '#24E2CB' }}
@@ -147,7 +155,7 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                disabled={isSending}
+                disabled={isPending}
                 placeholder="tu@email.com"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                 style={{ '--tw-ring-color': '#24E2CB' }}
@@ -171,7 +179,7 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
                   value={formData.salary}
                   onChange={handleChange}
                   required
-                  disabled={isSending}
+                  disabled={isPending}
                   min="1000"
                   max="200000"
                   placeholder="50000"
@@ -196,14 +204,14 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
                   accept="application/pdf"
                   onChange={handleChange}
                   required
-                  disabled={isSending}
+                  disabled={isPending}
                   className="hidden"
                   id="cv-upload"
                 />
                 <label
                   htmlFor="cv-upload"
                   className={`flex items-center justify-center gap-3 w-full px-4 py-4 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
-                    isSending 
+                    isPending 
                       ? 'bg-gray-100 cursor-not-allowed border-gray-300' 
                       : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
                   }`}
@@ -230,7 +238,7 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
           </div>
 
           {/* Estado de envío */}
-          {isSending && (
+          {isPending && (
             <div 
               className="mt-6 p-4 rounded-lg flex items-center gap-3"
               style={{ backgroundColor: '#24E2CB20' }}
@@ -247,20 +255,22 @@ const JobApplicationForm = ({ job, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={onClose}
-              disabled={isSending}
+              disabled={isPending}
               className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              disabled={isSending}
+              disabled={isPending}
               className="flex-1 px-6 py-3 text-white rounded-lg font-medium transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: '#007380' }}
             >
-              {isSending ? 'Enviando...' : 'Enviar Aplicación'}
+              {isPending ? 'Enviando...' : 'Enviar Aplicación'}
             </button>
           </div>
+          {isSuccess && <p>Postulacion enviada!</p>}
+          {isError && <p>Error: {String(error?.message || error)}</p>}
         </form>
       </div>
     </div>

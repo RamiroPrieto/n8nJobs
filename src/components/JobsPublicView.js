@@ -1,12 +1,20 @@
 // src/components/JobsPublicView.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, MapPin, Briefcase, DollarSign } from 'lucide-react';
-import { jobOffers } from '../data/mockData';
+//import { jobOffers } from '../data/mockData';
 import JobApplicationForm from './JobApplicationForm';
+import { useJobs } from '../hooks/useJobs';
 
 const JobsPublicView = () => {
+  const { data: jobs = [], isLoading, isError} = useJobs();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState(null);
+  const [jobOffers, setJobOffers] = useState([])
+
+  useEffect(() => {
+    setJobOffers(jobs[0]?.jobs);
+  }, [jobs])
+
 
   const handleApply = (job) => {
     setSelectedJob(job);
@@ -81,7 +89,9 @@ const JobsPublicView = () => {
       {/* Job Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-16">
         <div className="grid md:grid-cols-2 gap-6">
-          {jobOffers.map((job) => (
+          {isLoading ? <div>Cargando...</div>
+          :isError ? <div>Error al cargar</div>
+          :jobOffers?.map((job) => (
             <div
               key={job.id}
               className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
@@ -119,7 +129,7 @@ const JobsPublicView = () => {
                 </p>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {job.tags.map((tag, index) => (
+                  {/* {job.tags.map((tag, index) => (
                     <span
                       key={index}
                       className="px-3 py-1 rounded-full text-xs text-white font-medium"
@@ -127,7 +137,13 @@ const JobsPublicView = () => {
                     >
                       {tag}
                     </span>
-                  ))}
+                  ))} */}
+                  <span
+                      className="px-3 py-1 rounded-full text-xs text-white font-medium"
+                      style={{ backgroundColor: '#007380' }}
+                    >
+                      {job.short}
+                    </span>
                 </div>
               </div>
               <div className="px-6 pb-6">
