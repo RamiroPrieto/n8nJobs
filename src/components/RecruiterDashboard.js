@@ -69,8 +69,8 @@ const RecruiterDashboard = () => {
     console.log(`Cambiando estado del candidato ${candidateId} a: ${newStatus}`);
 
     const payload = {
-      candidateId,
-      newStatus
+      id: candidateId,
+      estado: newStatus
     };
     mutate(payload);
 

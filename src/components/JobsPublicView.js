@@ -1,7 +1,5 @@
-// src/components/JobsPublicView.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, MapPin, Briefcase, DollarSign } from 'lucide-react';
-//import { jobOffers } from '../data/mockData';
 import JobApplicationForm from './JobApplicationForm';
 import { useJobs } from '../hooks/useJobs';
 
