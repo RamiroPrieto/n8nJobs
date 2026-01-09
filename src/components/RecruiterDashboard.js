@@ -1,13 +1,32 @@
 // src/components/RecruiterDashboard.jsx
-import React, { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Eye, Mail, Download } from 'lucide-react';
-import { candidates } from '../data/mockData';
+import { SearchCandidate } from './SearchCandidate';
 import { useNavigate } from 'react-router-dom';
+import { useCandidates } from '../hooks/useCandidates';
+import { useCandidateState } from '../hooks/useCandidateState';
+import { useSearchCandidates } from '../hooks/useSearchCandidates';
+import { useDebounce } from '../hooks/useDebounced';
+
 
 const RecruiterDashboard = () => {
+
+  const { data: candidates = [], isLoading, isError} = useCandidates();
+  const { mutate, isPending} = useCandidateState();
+
   const [activeTab, setActiveTab] = useState('todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+
+  const [text, setText] = useState("");
+  const debounced = useDebounce(text, 300);
+
+  const query = debounced.trim();
+  const isSearching = query.length >= 2;
+
+  const {data: searchResults = [], isLoading: searching} = useSearchCandidates(query);
+  const baseList = isSearching ? searchResults : candidates
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
@@ -17,6 +36,15 @@ const RecruiterDashboard = () => {
     description: '',
     tags: ''
   });
+
+
+  const filteredCandidates = useMemo(() => {
+
+  if(activeTab === "todos") return baseList
+  return baseList?.filter(candidate => String(candidate.estado || "") === activeTab)
+
+  }, [candidates, activeTab]) 
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,6 +67,13 @@ const RecruiterDashboard = () => {
 
   const handleStatusChange = (candidateId, newStatus) => {
     console.log(`Cambiando estado del candidato ${candidateId} a: ${newStatus}`);
+
+    const payload = {
+      candidateId,
+      newStatus
+    };
+    mutate(payload);
+
     setSelectedCandidate(null);
   };
 
@@ -46,16 +81,15 @@ const RecruiterDashboard = () => {
     localStorage.removeItem('authToken');
     navigate('/login');
   };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Nuevo':
         return { bg: '#E0E7FF', text: '#3730A3' };
-      case 'En Revisión':
+      case 'declinado':
         return { bg: '#FEF3C7', text: '#92400E' };
-      case 'Entrevista Agente':
-        return { bg: '#D1FAE5', text: '#065F46', icon: '🤖' };
-      case 'Entrevista Manual':
-        return { bg: '#DBEAFE', text: '#1E40AF', icon: '👤' };
+      case 'aceptado':
+        return { bg: '#D1FAE5', text: '#065F46' };
       default:
         return { bg: '#F3F4F6', text: '#374151' };
     }
@@ -90,14 +124,19 @@ const RecruiterDashboard = () => {
             </h2>
             <p className="text-gray-600">Gestiona y revisa las aplicaciones recibidas</p>
           </div>
-          <button
+          <SearchCandidate
+            value={text}
+            onChange={setText}
+            loading={searching}
+          />
+          {/* <button
             onClick={() => setIsModalOpen(true)}
             className="px-6 py-3 rounded-lg text-white font-medium transition-all hover:opacity-90 shadow-md flex items-center gap-2"
             style={{ backgroundColor: '#007380' }}
           >
             <span className="text-xl">+</span>
             Nueva Vacante
-          </button>
+          </button> */}
         </div>
 
         {/* Tabs */}
@@ -106,8 +145,8 @@ const RecruiterDashboard = () => {
             <nav className="flex gap-8 px-6">
               {[
                 { id: 'todos', label: 'Todos los candidatos' },
-                { id: 'revision', label: 'En revisión' },
-                { id: 'entrevistas', label: 'Entrevistas' }
+                { id: 'aceptado', label: 'Aceptado' },
+                { id: 'declinado', label: 'Declinado' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -126,7 +165,9 @@ const RecruiterDashboard = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {isLoading ? <div>Cargando...</div>
+          :isError ? <div>Error al cargar</div> 
+          :<div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -155,8 +196,8 @@ const RecruiterDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {candidates.map((candidate) => {
-                  const statusColor = getStatusColor(candidate.status);
+                {filteredCandidates?.map((candidate) => {
+                  const statusColor = getStatusColor(candidate.estado);
                   return (
                     <tr key={candidate.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
@@ -165,11 +206,11 @@ const RecruiterDashboard = () => {
                             className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
                             style={{ backgroundColor: '#24E2CB30', color: '#007380' }}
                           >
-                            {candidate.name.charAt(0)}
+                            {candidate.nombre.charAt(0)}
                           </div>
                           <div>
                             <div className="font-medium" style={{ color: '#041E32' }}>
-                              {candidate.name}
+                              {candidate.nombre}
                             </div>
                             <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
                               <Mail size={12} />
@@ -181,18 +222,18 @@ const RecruiterDashboard = () => {
                       <td className="px-6 py-4 text-sm text-gray-700">{candidate.position}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{candidate.experience}</td>
                       <td className="px-6 py-4">
-                        {candidate.agentScore ? (
+                        {candidate.nota ? (
                           <div className="flex items-center gap-2">
                             <div 
                               className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm"
                               style={{ 
-                                backgroundColor: candidate.agentScore >= 80 ? '#D1FAE5' : 
-                                               candidate.agentScore >= 60 ? '#FEF3C7' : '#FEE2E2',
-                                color: candidate.agentScore >= 80 ? '#065F46' : 
-                                       candidate.agentScore >= 60 ? '#92400E' : '#991B1B'
+                                backgroundColor: candidate.nota >= 80 ? '#D1FAE5' : 
+                                               candidate.nota >= 60 ? '#FEF3C7' : '#FEE2E2',
+                                color: candidate.nota >= 80 ? '#065F46' : 
+                                       candidate.nota >= 60 ? '#92400E' : '#991B1B'
                               }}
                             >
-                              {candidate.agentScore}
+                              {candidate.nota}
                             </div>
                           </div>
                         ) : (
@@ -222,33 +263,19 @@ const RecruiterDashboard = () => {
                           {selectedCandidate === candidate.id && (
                             <div className="absolute z-10 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1">
                               <button
-                                onClick={() => handleStatusChange(candidate.id, 'Nuevo')}
+                                onClick={() => handleStatusChange(candidate.id, 'aceptado')}
                                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <span className="w-3 h-3 rounded-full bg-indigo-200"></span>
-                                Nuevo
-                              </button>
-                              <button
-                                onClick={() => handleStatusChange(candidate.id, 'En Revisión')}
-                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
-                              >
-                                <span className="w-3 h-3 rounded-full bg-yellow-200"></span>
-                                En Revisión
+                                <span className="w-3 h-3 rounded-full bg-green-200"></span>
+                                Aceptado
                               </button>
                               <div className="border-t border-gray-100 my-1"></div>
                               <button
-                                onClick={() => handleStatusChange(candidate.id, 'Entrevista Agente')}
+                                onClick={() => handleStatusChange(candidate.id, 'declinado')}
                                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <span>🤖</span>
-                                Entrevista Agente (IA)
-                              </button>
-                              <button
-                                onClick={() => handleStatusChange(candidate.id, 'Entrevista Manual')}
-                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
-                              >
-                                <span>👤</span>
-                                Entrevista Manual
+                                <span className="w-3 h-3 rounded-full bg-red-200"></span>
+                                Declinado
                               </button>
                             </div>
                           )}
@@ -283,6 +310,7 @@ const RecruiterDashboard = () => {
             </table>
           </div>
         </div>
+        }
       </div>
 
       {/* Modal para Nueva Vacante */}
