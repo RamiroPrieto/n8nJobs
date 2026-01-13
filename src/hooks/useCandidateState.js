@@ -7,7 +7,7 @@ export function useCandidateState(){
     return useMutation({
         mutationFn: sendCandidateState,
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ["sendCandidateState"]})
+            qc.invalidateQueries({ queryKey: ["candidates"]})
         }
     })
 }

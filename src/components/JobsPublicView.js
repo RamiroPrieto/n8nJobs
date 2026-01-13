@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Search, MapPin, Briefcase, DollarSign } from 'lucide-react';
 import JobApplicationForm from './JobApplicationForm';
 import { useJobs } from '../hooks/useJobs';
@@ -9,9 +9,27 @@ const JobsPublicView = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobOffers, setJobOffers] = useState([])
 
+  
   useEffect(() => {
-    setJobOffers(jobs[0]?.jobs);
+    let jobsList = jobs[0]?.jobs
+
+    setJobOffers(jobsList);
+
   }, [jobs])
+
+  const filteredOffers = useMemo(() => {
+
+    const query = searchTerm !==  null && searchTerm.length >= 3 && searchTerm.trim().toLowerCase();
+    if(!query) return jobOffers;
+
+    return jobOffers.filter((job) => {
+      const title = (job.title || '').toLowerCase().trim();
+      const description = (job.description || '').toLowerCase().trim();
+      
+      return title.includes(query) || description.includes(query)
+    })
+
+  }, [jobOffers , searchTerm])
 
 
   const handleApply = (job) => {
@@ -89,7 +107,7 @@ const JobsPublicView = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {isLoading ? <div>Cargando...</div>
           :isError ? <div>Error al cargar</div>
-          :jobOffers?.map((job) => (
+          :filteredOffers?.map((job) => (
             <div
               key={job.id}
               className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
