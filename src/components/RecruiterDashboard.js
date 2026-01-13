@@ -41,7 +41,7 @@ const RecruiterDashboard = () => {
   const downloadCv = async (candidateId) => {
     try {
       const response = await fetch(
-        `https://concentrix.net.ar:8443/webhook-test/downloadCv?candidateId=${candidateId}`,
+        `https://concentrix.net.ar:8443/webhook/downloadCv?candidateId=${candidateId}`,
         {
           method: 'GET',
         }
@@ -100,8 +100,8 @@ const RecruiterDashboard = () => {
     console.log(`Cambiando estado del candidato ${candidateId} a: ${newStatus}`);
 
     const payload = {
-      candidateId,
-      newStatus
+      id: candidateId,
+      estado: newStatus
     };
     mutate(payload);
 

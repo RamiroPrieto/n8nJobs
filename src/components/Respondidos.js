@@ -7,8 +7,8 @@ export const Respondidos = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // fetch("http://concentrix.net.ar:5678/webhook-test/candidates")
-    fetch("http://concentrix.net.ar:5678/webhook-test/candidates")
+    // fetch("http://concentrix.net.ar:5678/webhook/candidates")
+    fetch("http://concentrix.net.ar:5678/webhook/candidates")
       .then(res => {
         if (!res.ok) throw new Error("Error al obtener los candidatos");
         return res.json();
