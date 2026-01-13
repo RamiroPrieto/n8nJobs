@@ -2,7 +2,7 @@ import { http } from "./http";
 
 export async function fetchJobs(payload) {
     
-    const res = await http.get("/webhook/jobs", payload, {
+    const res = await http.get("/webhook-test/jobs", payload, {
         headers: {"Content-Type": "application/json"}
     });
 

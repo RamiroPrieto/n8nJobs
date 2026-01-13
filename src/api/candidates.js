@@ -2,7 +2,7 @@ import { http } from "./http";
 
 export async function getCandidates(payload) {
     
-    const res = await http.get("/webhook/candidates", payload, {
+    const res = await http.get("/webhook-test/candidates", payload, {
         headers: {"Content-Type": "application/json"}
     });
 

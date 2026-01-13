@@ -38,6 +38,37 @@ const RecruiterDashboard = () => {
   });
 
 
+  const downloadCv = async (candidateId) => {
+    try {
+      const response = await fetch(
+        `https://concentrix.net.ar:8443/webhook-test/downloadCv?candidateId=${candidateId}`,
+        {
+          method: 'GET',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Error descargando el CV');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cv_${candidateId}.pdf`; // o lo que quieras
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert('No se pudo descargar el CV');
+    }
+  };
+
+
   const filteredCandidates = useMemo(() => {
 
   if(activeTab === "todos") return baseList
@@ -298,6 +329,7 @@ const RecruiterDashboard = () => {
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#24E2CB20'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title="Descargar CV"
+                            onClick={() => downloadCv(candidate.id)}
                           >
                             <Download size={18} />
                           </button>
