@@ -5,6 +5,7 @@ import { useSendApplication } from '../hooks/useSendApplication';
 
 const JobApplicationForm = ({ job, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
+    id_propuesta: job.id,
     firstName: '',
     lastName: '',
     email: '',

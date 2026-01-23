@@ -97,7 +97,6 @@ const RecruiterDashboard = () => {
   };
 
   const handleStatusChange = (candidateId, newStatus) => {
-    console.log(`Cambiando estado del candidato ${candidateId} a: ${newStatus}`);
 
     const payload = {
       id: candidateId,
