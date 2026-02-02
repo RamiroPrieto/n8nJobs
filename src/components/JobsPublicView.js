@@ -2,44 +2,33 @@ import { useEffect, useState, useMemo } from 'react';
 import { Search, MapPin, Briefcase, DollarSign } from 'lucide-react';
 import JobApplicationForm from './JobApplicationForm';
 import { useJobs } from '../hooks/useJobs';
-
 const JobsPublicView = () => {
   const { data: jobs = [], isLoading, isError} = useJobs();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobOffers, setJobOffers] = useState([])
-
   
   useEffect(() => {
     let jobsList = jobs[0]?.jobs
-
     setJobOffers(jobsList);
-
   }, [jobs])
-
   const filteredOffers = useMemo(() => {
-
     const query = searchTerm !==  null && searchTerm.length >= 3 && searchTerm.trim().toLowerCase();
     if(!query) return jobOffers;
-
     return jobOffers.filter((job) => {
       const title = (job.title || '').toLowerCase().trim();
       const description = (job.description || '').toLowerCase().trim();
       
       return title.includes(query) || description.includes(query)
     })
-
   }, [jobOffers , searchTerm])
-
 
   const handleApply = (job) => {
     setSelectedJob(job);
   };
-
   const handleCloseModal = () => {
     setSelectedJob(null);
   };
-
   const handleSubmitApplication = async (formData, job) => {
     console.log('Aplicación enviada:', {
       job: job.id,
@@ -49,7 +38,6 @@ const JobsPublicView = () => {
     // Aquí harías la llamada a tu API
     return Promise.resolve();
   };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -73,7 +61,6 @@ const JobsPublicView = () => {
           </div>
         </div>
       </header>
-
       {/* Hero Section */}
       <div 
         className="text-white py-20" 
@@ -101,7 +88,6 @@ const JobsPublicView = () => {
           </div>
         </div>
       </div>
-
       {/* Job Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-16">
         <div className="grid md:grid-cols-2 gap-6">
@@ -114,7 +100,7 @@ const JobsPublicView = () => {
             >
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2" style={{ color: '#041E32' }}>
-                  {job.title}
+                {job.id} - {job.title}
                 </h3>
                 <p className="text-gray-600 mb-4">{job.company}</p>
                 
@@ -123,7 +109,7 @@ const JobsPublicView = () => {
                     <MapPin size={14} className="mr-1" />
                     {job.location}
                   </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm border border-gray-300 text-gray-700">
+                  {/* <span className="inline-flex items-center px-3 py-1 rounded-full text-sm border border-gray-300 text-gray-700">
                     <Briefcase size={14} className="mr-1" />
                     {job.type}
                   </span>
@@ -137,13 +123,11 @@ const JobsPublicView = () => {
                   >
                     <DollarSign size={14} className="mr-1" />
                     {job.salary}
-                  </span>
+                  </span> */}
                 </div>
-
                 <p className="text-gray-600 mb-4 text-sm leading-relaxed">
                   {job.description}
                 </p>
-
                 <div className="flex flex-wrap gap-2 mb-4">
                   {/* {job.tags.map((tag, index) => (
                     <span
@@ -175,7 +159,6 @@ const JobsPublicView = () => {
           ))}
         </div>
       </div>
-
       {/* Modal de Aplicación */}
       {selectedJob && (
         <JobApplicationForm
@@ -187,5 +170,4 @@ const JobsPublicView = () => {
     </div>
   );
 };
-
 export default JobsPublicView;

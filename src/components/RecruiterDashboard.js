@@ -1,6 +1,8 @@
+
 // src/components/RecruiterDashboard.jsx
 import { useState, useMemo, useEffect } from 'react';
-import { Eye, Mail, Download } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Eye, Mail, Download, Loader2 } from 'lucide-react';
 import { SearchCandidate } from './SearchCandidate';
 import { useNavigate } from 'react-router-dom';
 import { useCandidates } from '../hooks/useCandidates';
@@ -19,6 +21,8 @@ const RecruiterDashboard = () => {
   const [activeTab, setActiveTab] = useState('todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [openUpward, setOpenUpward] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [jobOffers, setJobOffers] = useState([]);
 
 
@@ -40,13 +44,31 @@ const RecruiterDashboard = () => {
     description: '',
     tags: ''
   });
+  const [updatingCandidate, setUpdatingCandidate] = useState(null);
+  useEffect(() => {
+    let jobsList = jobs[0]?.jobs
 
-    useEffect(() => {
-      let jobsList = jobs[0]?.jobs
+    setJobOffers(jobsList);
+    
+  }, [jobs])
   
-      setJobOffers(jobsList);
-  
-    }, [jobs])
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectedCandidate) {
+        const isStatusButton = event.target.closest('.status-dropdown-button');
+        const isDropdownMenu = event.target.closest('.status-dropdown-menu');
+        if (!isStatusButton && !isDropdownMenu) {
+          setSelectedCandidate(null);
+        }
+      }
+    };
+    if (selectedCandidate) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [selectedCandidate]);
 
   const downloadCv = async (candidateId) => {
     try {
@@ -80,12 +102,11 @@ const RecruiterDashboard = () => {
 
 
   const filteredCandidates = useMemo(() => {
+    if (activeTab === "todos") return baseList
+    return baseList?.filter(candidate => String(candidate.estado || "") === activeTab)
+  }, [candidates, activeTab])
 
-  if(activeTab === "todos") return baseList
-  return baseList?.filter(candidate => String(candidate.estado || "") === activeTab)
-
-  }, [candidates, activeTab]) 
-
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -104,37 +125,54 @@ const RecruiterDashboard = () => {
       tags: ''
     });
   };
-
+  const handleToggle = (candidateId, event) => {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    // Determina si debe abrir arriba o abajo
+    const shouldOpenUpward = spaceBelow < 200 && spaceAbove > spaceBelow;
+    setOpenUpward(shouldOpenUpward);
+    // Calcula la posición del menú
+    setMenuPosition({
+      top: shouldOpenUpward ? rect.top : rect.bottom,
+      left: rect.right
+    });
+    setSelectedCandidate(selectedCandidate === candidateId ? null : candidateId);
+  };
   const handleStatusChange = (candidateId, newStatus) => {
-
-
     const payload = {
       id: candidateId,
       estado: newStatus
     };
     mutate(payload);
-
-    setSelectedCandidate(null);
   };
-
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     navigate('/login');
   };
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'Nuevo':
         return { bg: '#E0E7FF', text: '#3730A3' };
-      case 'declinado':
+      case 'En curso':
+        return { bg: '#E0E7FF', text: '#3730A3' };
+      case 'Declinado':
         return { bg: '#FEF3C7', text: '#92400E' };
-      case 'aceptado':
+      case 'Aceptado':
         return { bg: '#D1FAE5', text: '#065F46' };
       default:
         return { bg: '#F3F4F6', text: '#374151' };
     }
   };
-
+  useEffect(() => {
+    if (!isPending && selectedCandidate) {
+      const timer = setTimeout(() => {
+        setSelectedCandidate(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isPending]);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -144,7 +182,7 @@ const RecruiterDashboard = () => {
             <h1 className="text-2xl font-bold">Panel de Reclutamiento</h1>
             <div className="flex items-center gap-3">
               <span className="text-sm">Reclutador</span>
-              <div 
+              <div
                 className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white"
                 style={{ backgroundColor: '#007380' }}
               >
@@ -154,7 +192,6 @@ const RecruiterDashboard = () => {
           </div>
         </div>
       </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Title with Button */}
         <div className="mb-6 flex justify-between items-start">
@@ -164,38 +201,38 @@ const RecruiterDashboard = () => {
             </h2>
             <p className="text-gray-600">Gestiona y revisa las aplicaciones recibidas</p>
           </div>
-          {/* <SearchCandidate
+          {/*  <SearchCandidate
             value={text}
             onChange={setText}
             loading={searching}
           /> */}
-          {/* <button
+          <button
             onClick={() => setIsModalOpen(true)}
             className="px-6 py-3 rounded-lg text-white font-medium transition-all hover:opacity-90 shadow-md flex items-center gap-2"
             style={{ backgroundColor: '#007380' }}
           >
             <span className="text-xl">+</span>
             Nueva Vacante
-          </button> */}
+          </button>
         </div>
         {jobOffers?.map(job =>
-          <div className="m-4 p-2 w-full border-2 font-medium py-3 rounded-lg transition-all hover:opacity-90">        
-              <details className='group'>
-                <summary className='flex cursor-pointer flex-row justify-between'>
-                    <p>
-                      <span 
-                      className='transition-transform group-[open]:rotate-180'
-                      >
-                       ►
-                      </span>
-                      { job?.title}</p>
-                    <p
-                        className="px-3 py-1 rounded-full text-xs text-white font-medium"
-                        style={{ backgroundColor: '#007380' }}
-                      >
-                        {job.short}
-                    </p>
-                </summary>
+          <div key={job?.id} className="m-4 p-2 w-full border-2 font-medium py-3 rounded-lg transition-all hover:opacity-90">
+            <details className='group'>
+              <summary className='flex cursor-pointer flex-row justify-between'>
+                <p>
+                  <span
+                    className='transition-transform group-[open]:rotate-180'
+                  >
+                    ►
+                  </span>
+                  {job?.id} - {job?.title}</p>
+                <p
+                  className="px-3 py-1 rounded-full text-xs text-white font-medium"
+                  style={{ backgroundColor: '#007380' }}
+                >
+                  {job.short}
+                </p>
+              </summary>
               {/* Tabs */}
               <div className="bg-white rounded-lg shadow-sm mb-6">
                 <div className="border-b border-gray-200">
@@ -223,159 +260,181 @@ const RecruiterDashboard = () => {
 
               {/* Table */}
               {isLoading ? <div>Cargando...</div>
-                :isError ? <div>Error al cargar</div> 
-                :<div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Candidato
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Posición
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Experiencia
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Score IA
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Fecha
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Estado
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                          Acciones
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {filteredCandidates?.filter(candidates => candidates.
-id_propuesta === job.id).map((candidate) => {
-                        const statusColor = getStatusColor(candidate.estado);
-                        return (
-                          <tr key={candidate.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <div 
-                                  className="w-10 h-10 rounded-full flex items-center justify-center font-semibold"
-                                  style={{ backgroundColor: '#24E2CB30', color: '#007380' }}
-                                >
-                                  {candidate.nombre.charAt(0)}
-                                </div>
-                                <div>
-                                  <div className="font-medium" style={{ color: '#041E32' }}>
-                                    {candidate.nombre}
-                                  </div>
-                                  <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                                    <Mail size={12} />
-                                    {candidate.email}
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{candidate.position}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{candidate.experience}</td>
-                            <td className="px-6 py-4">
-                              {candidate.nota ? (
-                                <div className="flex items-center gap-2">
-                                  <div 
-                                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm"
-                                    style={{ 
-                                      backgroundColor: candidate.nota >= 80 ? '#D1FAE5' : 
-                                                    candidate.nota >= 60 ? '#FEF3C7' : '#FEE2E2',
-                                      color: candidate.nota >= 80 ? '#065F46' : 
-                                            candidate.nota >= 60 ? '#92400E' : '#991B1B'
-                                    }}
-                                  >
-                                    {candidate.nota}
-                                  </div>
-                                </div>
-                              ) : (
-                                <span className="text-gray-400 text-sm">Pendiente</span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{candidate.appliedDate}</td>
-                            <td className="px-6 py-4">
-                              <div className="relative">
-                                <button
-                                  onClick={() => setSelectedCandidate(
-                                    selectedCandidate === candidate.id ? null : candidate.id
-                                  )}
-                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
-                                  style={{ 
-                                    backgroundColor: statusColor.bg,
-                                    color: statusColor.text
-                                  }}
-                                >
-                                  {statusColor.icon && <span>{statusColor.icon}</span>}
-                                  {candidate.status}
-                                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                  </svg>
-                                </button>
-                                
-                                {selectedCandidate === candidate.id && (
-                                  <div className="absolute z-10 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1">
-                                    <button
-                                      onClick={() => handleStatusChange(candidate.id, 'aceptado')}
-                                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                      <span className="w-3 h-3 rounded-full bg-green-200"></span>
-                                      Aceptado
-                                    </button>
-                                    <div className="border-t border-gray-100 my-1"></div>
-                                    <button
-                                      onClick={() => handleStatusChange(candidate.id, 'declinado')}
-                                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                      <span className="w-3 h-3 rounded-full bg-red-200"></span>
-                                      Declinado
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button 
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: '#007380' }}
-                                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#24E2CB20'}
-                                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                  title="Ver perfil completo"
-                                >
-                                  <Eye size={18} />
-                                </button>
-                                <button 
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: '#007380' }}
-                                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#24E2CB20'}
-                                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                  title="Descargar CV"
-                                  onClick={() => downloadCv(candidate.id)}
-                                >
-                                  <Download size={18} />
-                                </button>
-                              </div>
-                            </td>
+                : isError ? <div>Error al cargar</div>
+                  : <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Candidato
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Posición
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Experiencia
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Score IA
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Fecha
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Estado
+                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Acciones
+                            </th>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              }        
-              </details>
-            
-          </div>      
-        )}  
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {filteredCandidates?.filter(candidates => candidates.id_propuesta === job.id).map((candidate) => {
+                            const statusColor = getStatusColor(candidate.estado);
+                            return (
+                              <tr key={candidate.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className="w-20 h-10 rounded-full flex items-center justify-center font-semibold"
+                                      style={{ /* backgroundColor: '#24E2CB30', */ color: '#007380' }}
+                                    >
+                                      {candidate.id} - {candidate.nombre.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <div className="font-medium" style={{ color: '#041E32' }}>
+                                        {candidate.nombre}
+                                      </div>
+                                      <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                                        <Mail size={12} />
+                                        {candidate.email}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-700">{candidate.position}</td>
+                                <td className="px-6 py-4 text-sm text-gray-700">{candidate.experience}</td>
+                                <td className="px-6 py-4">
+                                  {candidate.nota ? (
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm"
+                                        style={{
+                                          backgroundColor: candidate.nota >= 80 ? '#D1FAE5' :
+                                            candidate.nota >= 60 ? '#FEF3C7' : '#FEE2E2',
+                                          color: candidate.nota >= 80 ? '#065F46' :
+                                            candidate.nota >= 60 ? '#92400E' : '#991B1B'
+                                        }}
+                                      >
+                                        {candidate.nota}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-gray-400 text-sm">Pendiente</span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-700">{candidate.appliedDate}</td>
+                                <td className="px-6 py-4">
+                                  <button
+                                    onClick={(e) => handleToggle(candidate.id, e)}
+                                    className="status-dropdown-button inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium hover:opacity-80 transition-opacity"
+                                    style={{
+                                      backgroundColor: statusColor.bg,
+                                      color: statusColor.text
+                                    }}
+                                    disabled={isPending && selectedCandidate === candidate.id}
+                                  >
+                                    {statusColor.icon && <span>{statusColor.icon}</span>}
+                                    {isPending && selectedCandidate === candidate.id ? (
+                                      <>
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        Actualizando...
+                                      </>
+                                    ) : (
+                                      <>
+                                        {candidate.estado}
+                                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                      </>
+                                    )}
+                                  </button>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <button
+                                      className="p-2 rounded-lg transition-colors"
+                                      style={{ color: '#007380' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#24E2CB20'}
+                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                      title="Ver perfil completo"
+                                    >
+                                      <Eye size={18} />
+                                    </button>
+                                    <button
+                                      className="p-2 rounded-lg transition-colors"
+                                      style={{ color: '#007380' }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#24E2CB20'}
+                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                      title="Descargar CV"
+                                      onClick={() => downloadCv(candidate.id)}
+                                    >
+                                      <Download size={18} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              }
+            </details>
+          </div>
+        )}
       </div>
-
+      {/* Dropdown Menu con Portal */}
+      {selectedCandidate && createPortal(
+        <div
+          className="status-dropdown-menu fixed z-50 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
+          style={{
+            top: openUpward ? 'auto' : `${menuPosition.top + 8}px`,
+            bottom: openUpward ? `${window.innerHeight - menuPosition.top + 8}px` : 'auto',
+            left: `${menuPosition.left - 224}px`
+          }}
+        >
+          <button
+            onClick={() => handleStatusChange(selectedCandidate, 'Aceptado')}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+            disabled={isPending}
+          >
+            <span className="w-3 h-3 rounded-full bg-green-200"></span>
+            Aceptado
+          </button>
+          <div className="border-t border-gray-100 my-1"></div>
+          <button
+            onClick={() => handleStatusChange(selectedCandidate, 'En curso')}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+            disabled={isPending}
+          >
+            <span className="w-3 h-3 rounded-full bg-blue-200"></span>
+            En curso
+          </button>
+          <div className="border-t border-gray-100 my-1"></div>
+          <button
+            onClick={() => handleStatusChange(selectedCandidate, 'Declinado')}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+            disabled={isPending}
+          >
+            <span className="w-3 h-3 rounded-full bg-red-200"></span>
+            Declinado
+          </button>
+        </div>,
+        document.body
+      )}
       {/* Modal para Nueva Vacante */}
       {isModalOpen && (
         <div 
