@@ -23,3 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 
 .vercel
+
+# npm cache
+clean/
+_cacache/
+**/_cacache/
