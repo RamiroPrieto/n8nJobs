@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+dist/
 
 # testing
 /coverage
@@ -22,4 +23,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+.env*
+.DS_Store
 .vercel
+
+# npm cache
+clean/
+_cacache/
+**/_cacache/
